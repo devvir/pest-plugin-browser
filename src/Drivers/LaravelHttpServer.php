@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pest\Browser\Drivers;
 
 use Amp\ByteStream\ReadableResourceStream;
+use Amp\Http\Cookie\RequestCookie;
 use Amp\Http\Server\DefaultErrorHandler;
 use Amp\Http\Server\HttpServer as AmpHttpServer;
 use Amp\Http\Server\HttpServerStatus;
@@ -242,14 +243,16 @@ final class LaravelHttpServer implements HttpServer
         if ($method !== 'GET' && str_starts_with(mb_strtolower($contentType), 'application/x-www-form-urlencoded')) {
             parse_str($rawBody, $parameters);
         }
+        $cookies = array_map(fn (RequestCookie $cookie): string => urldecode($cookie->getValue()), $request->getCookies());
+        $cookies = array_merge($cookies, test()->prepareCookiesForRequest());
 
         $symfonyRequest = Request::create(
             $absoluteUrl,
             $method,
             $parameters,
-            $request->getCookies(),
+            $cookies,
             [], // @TODO files...
-            [], // @TODO server variables...
+            test()->serverVariables(),
             $rawBody
         );
 
