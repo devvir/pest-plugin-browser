@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Http\Request;
 
-use function Pest\Laravel\withCookie;
 use function Pest\Laravel\withServerVariables;
+use function Pest\Laravel\withUnencryptedCookie;
 
 it('rewrites the URLs on JS files', function (): void {
     @file_put_contents(
@@ -23,10 +22,9 @@ it('rewrites the URLs on JS files', function (): void {
 });
 
 it('includes cookies set in the test', function (): void {
-    Route::middleware(EncryptCookies::class)
-        ->get('/cookies', fn (Request $request): array => $request->cookies->all());
+    Route::get('/cookies', fn (Request $request): array => $request->cookies->all());
 
-    withCookie('test-cookie', value: 'test value');
+    withUnencryptedCookie('test-cookie', value: 'test value');
     visit('/cookies')
         ->assertSee(json_encode(['test-cookie' => 'test value']));
 });
