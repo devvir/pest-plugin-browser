@@ -244,14 +244,9 @@ final class LaravelHttpServer implements HttpServer
             parse_str($rawBody, $parameters);
         }
         $cookies = array_map(fn (RequestCookie $cookie): string => urldecode($cookie->getValue()), $request->getCookies());
-        /** @phpstan-ignore-next-line  */
-        $cookies = array_merge($cookies, test()->prepareCookiesForRequest());
-        /**
-         * @var array<string, string> $serverVariables
-         *
-         * @phpstan-ignore-next-line
-         */
-        $serverVariables = test()->serverVariables();
+        $cookies = array_merge($cookies, test()->prepareCookiesForRequest()); // @phpstan-ignore-line
+        /** @var array<string, string> $serverVariables */
+        $serverVariables = test()->serverVariables(); // @phpstan-ignore-line
 
         $symfonyRequest = Request::create(
             $absoluteUrl,

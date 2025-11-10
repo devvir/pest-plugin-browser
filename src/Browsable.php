@@ -11,8 +11,6 @@ use Pest\Browser\Playwright\Client;
 use Pest\Browser\Playwright\Playwright;
 
 /**
- * @property array<string, string> $serverVariables
- *
  * @internal
  */
 trait Browsable
@@ -68,6 +66,6 @@ trait Browsable
      */
     protected function serverVariables(): array
     {
-        return $this->serverVariables;
+        return property_exists($this, 'serverVariables') ? $this->serverVariables : [];
     }
 }
