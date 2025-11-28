@@ -9,6 +9,7 @@ use Pest\Browser\Contracts\PlaywrightServer;
 use Pest\Browser\Drivers\LaravelHttpServer;
 use Pest\Browser\Drivers\NullableHttpServer;
 use Pest\Browser\Playwright\Servers\AlreadyStartedPlaywrightServer;
+use Pest\Browser\Playwright\Servers\ExternalPlaywrightServer;
 use Pest\Browser\Playwright\Servers\PlaywrightNpmServer;
 use Pest\Browser\Support\PackageJsonDirectory;
 use Pest\Browser\Support\Port;
@@ -54,6 +55,10 @@ final class ServerManager
      */
     public function playwright(): PlaywrightServer
     {
+        if (ExternalPlaywrightServer::isDefined()) {
+            return ExternalPlaywrightServer::instance();
+        }
+
         if (Parallel::isWorker()) {
             return AlreadyStartedPlaywrightServer::fromPersisted();
         }
