@@ -28,6 +28,11 @@ final class ServerManager
     public const string DEFAULT_HOST = '127.0.0.1';
 
     /**
+     * For external Playwright server, bind to all network interfaces.
+     */
+    public const string PUBLIC_HOST = '0.0.0.0';
+
+    /**
      * The singleton instance of the server manager.
      */
     private static ?ServerManager $instance = null;
@@ -51,11 +56,19 @@ final class ServerManager
     }
 
     /**
+     * Determines whether Playwright is running as an external dependency.
+     */
+    public function isPlaywrightExternal(): bool
+    {
+        return ExternalPlaywrightServer::isDefined();
+    }
+
+    /**
      * Returns the Playwright server process instance.
      */
     public function playwright(): PlaywrightServer
     {
-        if (ExternalPlaywrightServer::isDefined()) {
+        if ($this->isPlaywrightExternal()) {
             return ExternalPlaywrightServer::instance();
         }
 
@@ -88,8 +101,9 @@ final class ServerManager
     {
         return $this->http ??= match (function_exists('app_path')) {
             true => new LaravelHttpServer(
-                self::DEFAULT_HOST,
-                Port::find(),
+                host: $this->isPlaywrightExternal() ? self::PUBLIC_HOST : self::DEFAULT_HOST,
+                port: Port::find(),
+                publicHost: $this->isPlaywrightExternal() ? gethostbyname(gethostname()) : null,
             ),
             default => new NullableHttpServer(),
         };

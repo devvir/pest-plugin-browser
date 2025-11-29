@@ -55,6 +55,7 @@ final class LaravelHttpServer implements HttpServer
     public function __construct(
         public readonly string $host,
         public readonly int $port,
+        public readonly ?string $publicHost = null,
     ) {
         //
     }
@@ -201,7 +202,7 @@ final class LaravelHttpServer implements HttpServer
             throw new ServerNotFoundException('The HTTP server is not running.');
         }
 
-        return sprintf('http://%s:%d', $this->host, $this->port);
+        return sprintf('http://%s:%d', $this->publicHost ?? $this->host, $this->port);
     }
 
     /**
